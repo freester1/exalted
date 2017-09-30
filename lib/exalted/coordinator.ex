@@ -19,8 +19,8 @@ defmodule Exalted.Coordinator do
     end
 
     def handle_info({:process_batch, batch}, {pid, current_batch, map_fun, reduce_fun, reducers, results, :working}) do
-        ### create new mapper for this batch
-        {:ok, mapper_pid} = Exalted.Mapper.start_link(batch, map_fun)
+        ## create new mapper for this batch
+        {:ok, mapper_pid} = Exalted.Mapper.start_link(self(), batch, map_fun)
         send(mapper_pid, :apply_map)
 
         {:noreply, {pid, current_batch, map_fun, reduce_fun, reducers, results, :working}}
@@ -35,7 +35,7 @@ defmodule Exalted.Coordinator do
             else 
                 ## make a new reducer for this key
                 {:ok, reducer_pid} = Exalted.Reducer.start_link({self(), record_res, reduce_fun})
-                Map.put(reducer_pid, elem(0, record_res), pid)
+                Map.put(reducers, elem(0, record_res), reducer_pid)
             end
         end)
 
@@ -46,5 +46,12 @@ defmodule Exalted.Coordinator do
     def handle_info({:reducer_result, {key, reduced_results}}, {pid, current_batch, map_fun, reduce_fun, reducers, results, state}) do
         # add result to our map
         {:noreply, {pid, current_batch, map_fun, reduce_fun, reducers, Map.put(results, key, reduced_results), state}}
+    end
+
+    def handle_call(:get_results, {pid, current_batch, map_fun, reduce_fun, reducers, results, state}) do
+        ## poll until all reducers are done
+
+
+        ## return result
     end
 end

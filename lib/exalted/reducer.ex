@@ -17,7 +17,7 @@ defmodule Exalted.Reducer do
         {:noreply, {coordinator_pid, {key, results}, reduce_fun, :done}}
     end
 
-    def handle_info(:isDone, {coordinator_pid, {key, results}, reduce_fun, state}) do
-        {:noreply, state == :done}
+    def handle_call(:isDone, from, {coordinator_pid, {key, results}, reduce_fun, state}) do
+        {:reply, state == :done, {coordinator_pid, {key, results}, reduce_fun, state}}
     end 
 end
