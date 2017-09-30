@@ -5,12 +5,29 @@ defmodule Exalted do
 
   @spec map_reduce_query(table :: atom, map_fun :: (any -> {any, any}), reduce_fun :: ({any, any} -> any), batch_size :: pos_integer) :: {:ok, any} | {:error, any}
   def map_reduce_query(table, map_fun, reduce_fun, batch_size \\ 1) do
-    ## get all keys
-    :mnesia.all_keys(table)
-    |> create_batches(batch_size)
-    |> apply_map_to_mnesia(map_fun, table)
-    #|> combine
-    #|> apply_reduce
+    :mnesia.transaction(:table, fn -> init_map_reduce_jobs(table, map_fun, reduce_fun, batch_size) end)
+  end
+
+  def init_map_reduce_jobs(table, map_fun, reduce_fun, batch_size) do
+    ### traverse mnesia table
+    ### create batch and send them to producer-consumer
+    do_traversal(table, :mnesia.first(table), [], batch_size, [])
+  end
+
+  def do_traversal(table, :"$end_of_table", current_batch, batch_size, workers) do
+    ## if current_batch has stuff, create map worker and reduce worker
+    if length(current_batch) == batch_size do
+
+    else
+      
+    end
+    ## send 'end_of_table' to all running map workers and reduce workers
+  end
+
+  def do_traversal(table, record, current_batch, batch_size, workers) do
+    ## if batch size is big enough
+    ## create worker
+    ## else add to batch and recur
   end
 
   @spec create_batches(keys :: list(any), batch_size :: pos_integer) :: list(list(any))
