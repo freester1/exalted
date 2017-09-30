@@ -11,23 +11,27 @@ defmodule Exalted do
   def init_map_reduce_jobs(table, map_fun, reduce_fun, batch_size) do
     ### traverse mnesia table
     ### create batch and send them to producer-consumer
-    do_traversal(table, :mnesia.first(table), [], batch_size, [])
+    do_traversal(table, :mnesia.first(table), [], batch_size, [], map_fun, reduce_fun)
   end
 
-  def do_traversal(table, :"$end_of_table", current_batch, batch_size, workers) do
+  def do_traversal(table, :"$end_of_table", current_batch, batch_size, workers, map_fun, reduce_fun) do
     ## if current_batch has stuff, create map worker and reduce worker
     if length(current_batch) == batch_size do
-
+      setup_workers(current_batch, map_fun, reduce_fun)
     else
-      
+
     end
     ## send 'end_of_table' to all running map workers and reduce workers
   end
 
-  def do_traversal(table, record, current_batch, batch_size, workers) do
+  def do_traversal(table, record, current_batch, batch_size, workers, map_fun, reduce_fun) do
     ## if batch size is big enough
     ## create worker
     ## else add to batch and recur
+  end
+
+  defp setup_workers(current_batch, map_fun, reduce_fun) do
+    {:ok, coordinator} = GenStage.start_link(Exalted.Coordinator, current_batch, map_fun, reduce_fun)            
   end
 
   @spec create_batches(keys :: list(any), batch_size :: pos_integer) :: list(list(any))
