@@ -27,10 +27,10 @@ defmodule Exalted do
     |> elem(0)
   end
 
-  @spec apply_map_to_mnesia(key_batches :: list(list(any)), map_fun :: (any -> {any, any}, table :: atom, options :: list(atom))) :: list({any, any})
+  @spec apply_map_to_mnesia(key_batches :: list(list(any)), map_fun :: (any -> {any, any}), table :: atom, options :: list(atom)) :: list({any, any})
   def apply_map_to_mnesia(key_batches, map_fun, table, options \\ []) do
     key_batches
-    |> Enum.reduce([], &apply_map(&1, &2, map_fun, table))
+    |> Enum.reduce([], &apply_map_to_batch(&1, &2, map_fun, table))
   end
 
   defp apply_map_to_batch(key_batch, results, map_fun, table) do
