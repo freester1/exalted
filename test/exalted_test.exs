@@ -3,26 +3,20 @@ defmodule ExaltedTest do
   doctest Exalted
 
   test "PLS WORK" do
-    :mnesia.create_schema([node()])
-    :mnesia.start()
-    :mnesia.create_table(:Person, [attributes: [:id, :name, :job]])   
-    :mnesia.dirty_write({:Person, 1, "A", "F"})
-    :mnesia.dirty_write({:Person, 2, "B", "G"})
-    :mnesia.dirty_write({:Person, 3, "C", "H"}) 
+    ## Records made with :mnesia.write({Product, i, "", price})
     map_fun = fn (record) -> 
       tup = hd(record)
-      name = elem(tup, 2)
-      length(name)
+      elem(tup, 3)
     end
 
     reduce_fun = fn (list_of_list_of_records) ->
       list_of_list_of_records
       |> Enum.reduce(0, fn (r, acc) ->
         tup = hd(r)
-        name = elem(tup, 2)
-        acc = acc + length(name)
+        price = elem(tup, 3)
+        acc = acc + price
       end)
     end
-    Exalted.map_reduce_query(:Person, map_fun, reduce_fun)
+    Exalted.map_reduce_query(:Product, map_fun, reduce_fun, 10) == 91
   end
 end

@@ -11,11 +11,12 @@ defmodule Exalted.Mapper do
 
     def handle_info(:apply_map, {coordinator_pid, batch, map_fun}) do
         res = batch
-              |> Enum.reduce(%{}, fn(record, acc) ->
-                    Map.put(acc, map_fun.(record), record)
+              |> Enum.reduce([], fn(record, acc) ->
+                    [{map_fun.(record), record} | acc]
                 end)
         ## send result back
+        #require IEx; IEx.pry        
         send(coordinator_pid, {:mapper_result, res, self()})
-        {:noreply, res, {coordinator_pid, batch, map_fun}}
+        {:noreply, {coordinator_pid, batch, map_fun}}
     end
 end
