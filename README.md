@@ -1,6 +1,6 @@
 # Exalted
 
-**TODO: Add description**
+A map-reduce implementation for mnesia tables. Tries to be as efficient as possibly by utilizing `:mnesia.first` and `:mnesia.next` to do everything in one pass. Benchmarks soon.
 
 ## Installation
 
