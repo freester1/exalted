@@ -34,7 +34,7 @@ defmodule Exalted.Coordinator do
         end)
         ## kill mapper
         GenServer.stop(mapper_pid)
-        {:noreply, {current_batch, map_fun, reduce_fun, MapSet.delete(mappers, mapper_pid), new_reducers, results, :fuck}}
+        {:noreply, {current_batch, map_fun, reduce_fun, MapSet.delete(mappers, mapper_pid), new_reducers, results, :working}}
     end
 
     def handle_info({:reducer_results, {key, reduced_results}}, {current_batch, map_fun, reduce_fun, mappers, reducers, results, state}) do

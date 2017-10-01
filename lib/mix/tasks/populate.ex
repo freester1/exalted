@@ -10,8 +10,8 @@ defmodule Mix.Tasks.Populate do
         disc_copies: [node()]]) do
         {:atomic, :ok} ->
           rows = fn ->
-            for i <- 0..10 do
-              price = Enum.random(0..3)
+            for i <- 0..1000 do
+              price = Enum.random(0..255)
               :mnesia.write({:Product, i, "", price})
             end
           end
