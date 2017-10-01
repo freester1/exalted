@@ -42,11 +42,11 @@ iex(15)> Benchwarmer.benchmark(fn -> :mnesia.transaction( fn -> :mnesia.all_keys
 
 .. using flow to map-reduce:
 
-iex(14)>   Benchwarmer.benchmark(fn -> :mnesia.transaction( fn -> :mnesia.all_keys(:Product) |> Flow.from_enumerable |> Flow.flat_map(fn (key) -> key end) |> Flow.reduce(fn -> "" end, fn x, y -> "" end) end) end)
+iex(16)>   Benchwarmer.benchmark(fn -> :mnesia.transaction( fn -> :mnesia.all_keys(:Product) |> Flow.from_enumerable |> Flow.flat_map(fn (key) -> :mnesia.read(:Product, key) end) |> Flow.reduce(fn -> "" end, fn x, y -> "" end) end) end)
 *** #Function<20.99386804/0 in :erl_eval.expr/5> ***
-1.5 sec     8K iterations   189.85 μs/op
+1.5 sec     8K iterations   183.83 μs/op
 
-[%Benchwarmer.Results{args: [], duration: 1555000,
+[%Benchwarmer.Results{args: [], duration: 1505701,
   function: #Function<20.99386804/0 in :erl_eval.expr/5>, n: 8191,
   prev_n: 4096}]
   
