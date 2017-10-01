@@ -59,7 +59,7 @@ defmodule Exalted.Coordinator do
             not_done = reducers
                    |> Enum.filter(fn(reducer) ->
                     reducer_pid = elem(reducer, 1)
-                    if GenServer.call(reducer_pid, :isDone) do
+                    if GenServer.call(reducer_pid, :is_done) do
                         GenServer.stop(reducer_pid)
                         true
                     else

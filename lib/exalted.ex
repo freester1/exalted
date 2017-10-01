@@ -20,7 +20,7 @@ defmodule Exalted do
     end
 
     ## wait for result
-    GenServer.call(coordinator_pid, :get_results, :infinity)
+  #  GenServer.call(coordinator_pid, :get_results, :infinity)
   end
 
   def do_traversal(table, key, current_batch, batch_size, map_fun, reduce_fun, coordinator_pid) do
@@ -32,7 +32,7 @@ defmodule Exalted do
   end
 
   defp process_batch(batch, coordinator) do
-    send(coordinator, {:process_batch, batch})
+  #  send(coordinator, {:process_batch, batch})
   end
 end
 
