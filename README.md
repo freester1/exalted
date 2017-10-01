@@ -31,7 +31,7 @@ iex(4)>     reduce_fun = fn (list_of_list_of_records) ->
 ...(4)>       end)
 ...(4)>     end
 
-... time to do a hand-rolled map reduce:
+... time to do a hand-rolled map-reduce:
 
 iex(15)> Benchwarmer.benchmark(fn -> :mnesia.transaction( fn -> :mnesia.all_keys(:Product) |> Enum.map(fn (key) -> map_fun.(:mnesia.read(:Product, key)) end) |> Enum.reduce(fn(x, acc) -> x+acc end) end)  end)
 *** #Function<20.99386804/0 in :erl_eval.expr/5> ***
@@ -40,8 +40,17 @@ iex(15)> Benchwarmer.benchmark(fn -> :mnesia.transaction( fn -> :mnesia.all_keys
 [%Benchwarmer.Results{args: [], duration: 1635025,
   function: #Function<20.99386804/0 in :erl_eval.expr/5>, n: 255, prev_n: 128}]
 
+.. using flow to map-reduce:
+
+iex(14)>   Benchwarmer.benchmark(fn -> :mnesia.transaction( fn -> :mnesia.all_keys(:Product) |> Flow.from_enumerable |> Flow.flat_map(fn (key) -> key end) |> Flow.reduce(fn -> "" end, fn x, y -> "" end) end) end)
+*** #Function<20.99386804/0 in :erl_eval.expr/5> ***
+1.5 sec     8K iterations   189.85 μs/op
+
+[%Benchwarmer.Results{args: [], duration: 1555000,
+  function: #Function<20.99386804/0 in :erl_eval.expr/5>, n: 8191,
+  prev_n: 4096}]
   
-... time to run entire map-reduce job with batch size of 100:
+... time to run Exalted map-reduce job with batch size of 100:
 
 iex(19)> Benchwarmer.benchmark(fn -> Exalted.map_reduce_query(:Product, map_fun, reduce_fun, 100) end)
 *** #Function<20.99386804/0 in :erl_eval.expr/5> ***
