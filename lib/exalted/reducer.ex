@@ -5,6 +5,10 @@ defmodule Exalted.Reducer do
         GenServer.start_link(__MODULE__, {coordinator_pid, {key, results}, reduce_fun, :working})        
     end
 
+    def init({coordinator_pid, {key, results}, reduce_fun, :working}) do
+        {:ok, {coordinator_pid, {key, results}, reduce_fun, :working}}
+    end
+
     def handle_info({:add_record, record}, {coordinator_pid, {key, results}, reduce_fun, state}) do
         {:noreply, {coordinator_pid, {key, results ++ [record]}, reduce_fun, :working}}
     end

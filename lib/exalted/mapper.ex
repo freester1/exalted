@@ -6,7 +6,7 @@ defmodule Exalted.Mapper do
     end
 
     def init({coordinator_pid, batch, map_fun}) do
-        {:producer, {coordinator_pid, batch, %{}, map_fun}}
+        {:ok, {coordinator_pid, batch, map_fun}}
     end
 
     def handle_info(:apply_map, {coordinator_pid, batch, map_fun}) do
