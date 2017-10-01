@@ -17,6 +17,6 @@ defmodule ExaltedTest do
         acc = acc + price
       end)
     end
-    assert Exalted.map_reduce_query(:Product, map_fun, reduce_fun, 10) == 91
+    assert Exalted.map_reduce_query(:Product, map_fun, reduce_fun, 10) |> Map.keys |> length > 0
   end
 end
