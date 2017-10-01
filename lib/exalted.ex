@@ -10,24 +10,25 @@ defmodule Exalted do
 
   def init_map_reduce_jobs(table, map_fun, reduce_fun, batch_size) do
     ### traverse mnesia table
-    {:ok, coordinator} = GenStage.start_link(Exalted.Coordinator, {map_fun, reduce_fun})                
-    do_traversal(table, :mnesia.first(table), [], batch_size, [], map_fun, reduce_fun, coordinator)
+    {:ok, coordinator_pid} = GenStage.start_link(Exalted.Coordinator, {map_fun, reduce_fun})                
+    do_traversal(table, :mnesia.first(table), [], batch_size, map_fun, reduce_fun, coordinator_pid)
   end
 
-  def do_traversal(table, :"$end_of_table", current_batch, batch_size, workers, map_fun, reduce_fun, coordinator_pid) do
-    ## if current_batch has stuff, create map worker and reduce worker
+  def do_traversal(table, :"$end_of_table", current_batch, batch_size, map_fun, reduce_fun, coordinator_pid) do
     if length(current_batch) > 0 do
-      ## add the final batch
       process_batch(current_batch, coordinator_pid)
     end
+
     ## wait for result
     GenServer.call(coordinator_pid, :get_results, :infinity)
   end
 
-  def do_traversal(table, record, current_batch, batch_size, workers, map_fun, reduce_fun) do
-    ## if batch size is big enough
-    ## create worker
-    ## else add to batch and recur
+  def do_traversal(table, key, current_batch, batch_size, map_fun, reduce_fun, coordinator_pid) do
+    if length(current_batch) == batch_size do
+      process_batch(current_batch, coordinator_pid)   
+    end
+    record = :mnesia.read(table, key)
+    do_traversal(table, :mnesia.next(table, key), [ record | current_batch ], batch_size, map_fun, reduce_fun, coordinator_pid)
   end
 
   defp process_batch(batch, coordinator) do

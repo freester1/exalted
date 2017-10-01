@@ -15,8 +15,7 @@ defmodule Exalted.Mapper do
                     Map.put(acc, map_fun.(record), record)
                 end)
         ## send result back
-        send(coordinator_pid, {:mapper_result, res})
-        
+        send(coordinator_pid, {:mapper_result, res, self()})
         {:noreply, res, {coordinator_pid, batch, map_fun}}
     end
 end
