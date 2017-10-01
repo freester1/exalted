@@ -3,7 +3,7 @@ defmodule Exalted do
   Documentation for Exalted.
   """
 
-  @spec map_reduce_query(table :: atom, map_fun :: (any -> {any, any}), reduce_fun :: ({any, any} -> any), batch_size :: pos_integer) :: {:ok, any} | {:error, any}
+  @spec map_reduce_query(table :: atom, map_fun :: (any -> {any, any}), reduce_fun :: ({any, any} -> any), batch_size :: pos_integer) :: map
   def map_reduce_query(table, map_fun, reduce_fun, batch_size \\ 1) do    
     {:atomic, res} = :mnesia.transaction(fn -> init_map_reduce_jobs(table, map_fun, reduce_fun, batch_size) end)
     res
