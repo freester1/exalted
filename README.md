@@ -39,8 +39,17 @@ iex(11)> Benchwarmer.benchmark(fn -> :mnesia.transaction(fn ->:mnesia.all_keys(:
 [%Benchwarmer.Results{args: [], duration: 1683394,
   function: #Function<20.99386804/0 in :erl_eval.expr/5>, n: 16383,
   prev_n: 8192}]
+
+... to get all keys and apply the map function:
+iex(15)>   Benchwarmer.benchmark(fn -> :mnesia.transaction( fn -> :mnesia.all_keys(:Product) |> Enum.map(map_fun) end)  end)  
+*** #Function<20.99386804/0 in :erl_eval.expr/5> ***
+1.9 sec    16K iterations   116.38 μs/op
+
+[%Benchwarmer.Results{args: [], duration: 1906524,
+  function: #Function<20.99386804/0 in :erl_eval.expr/5>, n: 16383,
+  prev_n: 8192}]
   
-... time to run map-reduce job:
+... time to run entire map-reduce job:
 
 iex(10)> Benchwarmer.benchmark(fn -> Exalted.map_reduce_query(:Product, map_fun, reduce_fun, 10) end)
 *** #Function<20.99386804/0 in :erl_eval.expr/5> ***
