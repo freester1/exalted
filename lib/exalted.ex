@@ -28,11 +28,9 @@ defmodule Exalted do
   def do_traversal(table, key, current_batch, batch_size, map_fun, reduce_fun, coordinator_pid) do
     record = :mnesia.read(table, key)    
     if length(current_batch) == batch_size do
-      #require IEx; IEx.pry  
       process_batch(current_batch, coordinator_pid)  
       do_traversal(table, :mnesia.next(table, key), [record], batch_size, map_fun, reduce_fun, coordinator_pid)      
     else
-      #require IEx; IEx.pry      
       do_traversal(table, :mnesia.next(table, key), [ record | current_batch ], batch_size, map_fun, reduce_fun, coordinator_pid)
     end
   end

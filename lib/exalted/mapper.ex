@@ -15,7 +15,6 @@ defmodule Exalted.Mapper do
                     [{map_fun.(record), record} | acc]
                 end)
         ## send result back
-        #require IEx; IEx.pry        
         send(coordinator_pid, {:mapper_result, res, self()})
         {:noreply, {coordinator_pid, batch, map_fun}}
     end

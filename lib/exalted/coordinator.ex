@@ -13,7 +13,6 @@ defmodule Exalted.Coordinator do
 
     def handle_info({:process_batch, batch}, {current_batch, map_fun, reduce_fun, mappers, reducers, results, state}) do
         ## create new mapper for this batch
-        #require IEx; IEx.pry                        
         {:ok, mapper_pid} = Exalted.Mapper.start_link({self(), batch, map_fun})
         send(mapper_pid, :apply_map)
         {:noreply, {current_batch, map_fun, reduce_fun, MapSet.put(mappers, mapper_pid), reducers, results, :working}}
@@ -40,7 +39,6 @@ defmodule Exalted.Coordinator do
 
     def handle_info({:reducer_results, {key, reduced_results}}, {current_batch, map_fun, reduce_fun, mappers, reducers, results, state}) do
         # add result to our map
-        #require IEx; IEx.pry        
         {:noreply, {current_batch, map_fun, reduce_fun, mappers, reducers, Map.put(results, key, reduced_results), state}}
     end
 
@@ -48,7 +46,6 @@ defmodule Exalted.Coordinator do
         ## poll until all reducers are done
         if MapSet.size(mappers) > 0 do
             ## not ready
-            #require IEx; IEx.pry            
             {:reply, nil, {current_batch, map_fun, reduce_fun, mappers, reducers, results, state}, :hibernate}
         else
             Enum.each(reducers, fn(reducer) -> 
@@ -69,7 +66,6 @@ defmodule Exalted.Coordinator do
     end
 
     defp poll_until_done(reducers) do
-        #require IEx; IEx.pry                
         if reducers |> Map.keys |> length == 0  do
             true
         else
