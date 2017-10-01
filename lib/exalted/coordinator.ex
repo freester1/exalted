@@ -13,6 +13,7 @@ defmodule Exalted.Coordinator do
 
     def handle_info({:process_batch, batch}, {current_batch, map_fun, reduce_fun, mappers, reducers, results, state}) do
         ## create new mapper for this batch
+        #require IEx; IEx.pry                        
         {:ok, mapper_pid} = Exalted.Mapper.start_link({self(), batch, map_fun})
         send(mapper_pid, :apply_map)
         {:noreply, {current_batch, map_fun, reduce_fun, MapSet.put(mappers, mapper_pid), reducers, results, :working}}
@@ -20,16 +21,14 @@ defmodule Exalted.Coordinator do
 
     def handle_info({:mapper_result, res, mapper_pid}, {current_batch, map_fun, reduce_fun, mappers, reducers, results, state}) do        
         ## create reducer for this key if it doesn't exist
-        #require IEx; IEx.pry                                
         new_reducers = res
         |> Enum.reduce(reducers, fn(record_res, acc) ->
             if Map.has_key?(acc, elem(record_res, 0)) do
                 ## add this record to reducer
                 send(Map.get(acc, elem(record_res, 0)), {:add_record, elem(record_res, 1)})
-                reducers
+                acc
             else 
                 ## make a new reducer for this key
-                #require IEx; IEx.pry
                 {:ok, reducer_pid} = Exalted.Reducer.start_link({self(), record_res, reduce_fun})
                 Map.put(acc, elem(record_res, 0), reducer_pid)
             end
@@ -68,6 +67,7 @@ defmodule Exalted.Coordinator do
     def handle_call(:get_results, _from,  {current_batch, map_fun, reduce_fun, mappers, reducers, results, state}) do
         {:reply, results, {current_batch, map_fun, reduce_fun, mappers, reducers, results, :done}, :hibernate}        
     end
+
     defp poll_until_done(reducers) do
         #require IEx; IEx.pry                
         if reducers |> Map.keys |> length == 0  do
@@ -76,7 +76,7 @@ defmodule Exalted.Coordinator do
             not_done = reducers
                    |> Enum.reduce(%{}, fn(reducer, acc) ->
                     reducer_pid = elem(reducer, 1)
-                    if GenServer.call(reducer_pid, :is_done) do
+                    if GenServer.call(reducer_pid, :is_done, :infinity) do
                         GenServer.stop(reducer_pid)
                         acc
                     else
