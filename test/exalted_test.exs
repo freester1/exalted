@@ -2,7 +2,7 @@ defmodule ExaltedTest do
   use ExUnit.Case
   doctest Exalted
 
-  test "PLS WORK" do
+  test "test that the map reducer does something" do
     ## Records made with :mnesia.write({Product, i, "", price})
     map_fun = fn (record) -> 
       tup = hd(record)
