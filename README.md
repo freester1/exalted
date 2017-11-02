@@ -1,6 +1,6 @@
 # Exalted
 
-A map-reduce implementation for mnesia tables using GenServers. Tries to be as efficient as possibly by utilizing `:mnesia.first` and `:mnesia.next` to do everything in one pass. Benchmarks / docs soon.
+A map-reduce implementation for mnesia tables using GenServers. Tries to be as efficient as possibly by utilizing `:mnesia.first` and `:mnesia.next` to do everything in one pass.
 
 
 Usage and Benchmarks:
