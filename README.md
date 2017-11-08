@@ -5,6 +5,7 @@ A map-reduce implementation for mnesia tables using GenServers. Tries to be as e
 
 Usage and Benchmarks:
 
+Given a table:
 ```
 :mnesia.create_schema([node()])
 :mnesia.start()
@@ -15,13 +16,16 @@ Usage and Benchmarks:
   disc_copies: [node()]])
 
 Populate with 1000 random entries ...
-  
-
+```
+Define a map function `mnesia_record -> value`
+```
 iex(3)>     map_fun = fn (record) -> 
 ...(3)>       tup = hd(record)
 ...(3)>       elem(tup, 3)
 ...(3)>     end
-#Function<6.99386804/1 in :erl_eval.expr/5>
+```
+Define a reduce function `list of mnesia_records -> value`
+```
 iex(4)>     reduce_fun = fn (list_of_list_of_records) ->
 ...(4)>       list_of_list_of_records
 ...(4)>       |> Enum.reduce(0, fn (r, acc) ->
@@ -30,18 +34,20 @@ iex(4)>     reduce_fun = fn (list_of_list_of_records) ->
 ...(4)>         acc = acc + price
 ...(4)>       end)
 ...(4)>     end
+```
 
-... time to do a hand-rolled map-reduce:
-
+time to do a map, then a reduce on an entire table:
+```
 iex(15)> Benchwarmer.benchmark(fn -> :mnesia.transaction( fn -> :mnesia.all_keys(:Product) |> Enum.map(fn (key) -> map_fun.(:mnesia.read(:Product, key)) end) |> Enum.reduce(fn(x, acc) -> x+acc end) end)  end)
 *** #Function<20.99386804/0 in :erl_eval.expr/5> ***
 1.6 sec    255 iterations   6411.87 μs/op
 
 [%Benchwarmer.Results{args: [], duration: 1635025,
   function: #Function<20.99386804/0 in :erl_eval.expr/5>, n: 255, prev_n: 128}]
+```
 
-.. using flow to map-reduce:
-
+using [flow](https://github.com/elixir-lang/flow) to perform this asynchronously:
+```
 iex(16)>   Benchwarmer.benchmark(fn -> :mnesia.transaction( fn -> :mnesia.all_keys(:Product) |> Flow.from_enumerable |> Flow.flat_map(fn (key) -> :mnesia.read(:Product, key) end) |> Flow.reduce(fn -> "" end, fn x, y -> "" end) end) end)
 *** #Function<20.99386804/0 in :erl_eval.expr/5> ***
 1.5 sec     8K iterations   183.83 μs/op
@@ -49,9 +55,9 @@ iex(16)>   Benchwarmer.benchmark(fn -> :mnesia.transaction( fn -> :mnesia.all_ke
 [%Benchwarmer.Results{args: [], duration: 1505701,
   function: #Function<20.99386804/0 in :erl_eval.expr/5>, n: 8191,
   prev_n: 4096}]
-  
-... time to run Exalted map-reduce job with batch size of 100:
-
+```
+time to run Exalted map-reduce job with batch size of 100:
+```
 iex(19)> Benchwarmer.benchmark(fn -> Exalted.map_reduce_query(:Product, map_fun, reduce_fun, 100) end)
 *** #Function<20.99386804/0 in :erl_eval.expr/5> ***
 1.2 sec     63 iterations   19854.86 μs/op
