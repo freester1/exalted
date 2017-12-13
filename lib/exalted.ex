@@ -30,22 +30,6 @@ defmodule Exalted do
     end)
   end
 
-  defp do_traversal(table, :"$end_of_table", current_batch, batch_size, map_fun, reduce_fun, coordinator_pid) do
-    if length(current_batch) > 0 do
-      process_batch(current_batch, coordinator_pid)
-    end
-  end
-
-  defp do_traversal(table, key, current_batch, batch_size, map_fun, reduce_fun, coordinator_pid) do
-    record = :mnesia.read(table, key)
-    if length(current_batch) == batch_size do
-      process_batch(current_batch, coordinator_pid)
-      do_traversal(table, :mnesia.next(table, key), [record], batch_size, map_fun, reduce_fun, coordinator_pid)
-    else
-      do_traversal(table, :mnesia.next(table, key), [ record | current_batch ], batch_size, map_fun, reduce_fun, coordinator_pid)
-    end
-  end
-
   defp process_batch(batch, coordinator) do
    send(coordinator, {:process_batch, batch})
   end
