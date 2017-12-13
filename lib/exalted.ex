@@ -22,6 +22,11 @@ defmodule Exalted do
           [ record | current_batch ]
         end
       end, [], table)
+    ## wait for result
+    res = poll_until_res(coordinator_pid)
+    ## kill coordinator
+    GenServer.stop(coordinator_pid)
+    res
     end)
   end
 
@@ -29,11 +34,6 @@ defmodule Exalted do
     if length(current_batch) > 0 do
       process_batch(current_batch, coordinator_pid)
     end
-    ## wait for result
-    res = poll_until_res(coordinator_pid)
-    ## kill coordinator
-    GenServer.stop(coordinator_pid)
-    res
   end
 
   defp do_traversal(table, key, current_batch, batch_size, map_fun, reduce_fun, coordinator_pid) do
