@@ -3,14 +3,14 @@ defmodule Mix.Tasks.Populate do
     def run(_) do
       :mnesia.create_schema([node()])
       :mnesia.start()
-  
+
       case :mnesia.create_table(:Product, [
         attributes: [:id, :name, :price],
         type: :ordered_set,
         disc_copies: [node()]]) do
         {:atomic, :ok} ->
           rows = fn ->
-            for i <- 0..1000 do
+            for i <- 0..500000 do
               price = Enum.random(0..255)
               :mnesia.write({:Product, i, "", price})
             end
@@ -24,4 +24,3 @@ defmodule Mix.Tasks.Populate do
       :ok
     end
   end
-  
