@@ -36,7 +36,7 @@ iex(4)>     reduce_fun = fn (list_of_list_of_records) ->
 ...(4)>     end
 ```
 
-time to do a map, then a reduce on an entire table:
+time(ms) to do a map, then a reduce on an entire table:
 ```
 iex(12)> {time, res} = :timer.tc(fn ->  :mnesia.transaction( fn -> :mnesia.all_keys(:Product) |> Enum.map(fn (key) -> map_fun.(:mnesia.read(:Product, key)) end) |> Enum.reduce(fn(x, acc) -> x+acc end) end) end)
 {855705, ...}
@@ -44,7 +44,7 @@ iex(13)> time
 855705
 ```
 
-time to run Exalted map-reduce job with batch size of 75:
+time(ms) to run Exalted map-reduce job with batch size of 75:
 ```
 iex(10)> {time, res} = :timer.tc(fn -> Exalted.map_reduce_query(:Product, map_fun, reduce_fun, 100) end)
 {696800,...}
