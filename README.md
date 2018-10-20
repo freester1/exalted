@@ -44,7 +44,7 @@ iex(13)> time
 855705
 ```
 
-time(ms) to run Exalted map-reduce job with batch size of 75:
+time(ms) to run Exalted map-reduce job with batch size of 100:
 ```
 iex(10)> {time, res} = :timer.tc(fn -> Exalted.map_reduce_query(:Product, map_fun, reduce_fun, 100) end)
 {696800,...}
